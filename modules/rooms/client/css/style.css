@@ -1,0 +1,13 @@
+#room_details {display: inline;float: left; width: 70%; margin-right: 10px;}
+#room_details li {list-style-type: none;display: inline-block;color: #FFF;font-size: 16px;}
+#room_details li {padding: 2px 4px;border-radius: 6px;margin-right: 5px;}
+#room_details li:nth-child(3n+0){background: green;}
+#room_details li:nth-child(3n+1){background: red;}
+#room_details li:nth-child(3n+2){background: blue;}
+#room_details li:hover {background: yellow;color: #000; font-size: 20px;}
+#room_details li span {margin-right: 3px;}
+#room_details li i { cursor: pointer;}
+#list_user {display: inline;float: left;}
+#list_user .list-group-item {
+
+}

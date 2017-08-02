@@ -1,0 +1,12 @@
+<section>
+  <div class="page-header">
+    <h1>Danh sach phong</h1>
+  </div>
+  <div class="list-group">
+    <a ng-repeat="room in vm.rooms" ui-sref="rooms.view({ roomId: room._id })" class="list-group-item">
+      <h4 class="list-group-item-heading" ng-bind="room.name"></h4>
+      <p class="list-group-item-text" ng-bind="room.description"></p>
+      <p class="list-group-item-text" ng-bind="room.maxJoin"></p>
+    </a>
+  </div>
+</section>
