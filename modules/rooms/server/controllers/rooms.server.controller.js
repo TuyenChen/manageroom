@@ -21,26 +21,67 @@ exports.create = function (req, res) {
 };
 
 exports.list = function (req, res) {
-	RoomModel.find().sort('-created').exec(function (err, rooms) {
-		if (err) {
-			return res.status(422).send({
-				message: errorHandler.getErrorMessage(err)
-			});
-		} else {
-			res.json(rooms);
-		}
-	});
+	if (req.user.roles != 'admin'){
+		RoomModel.find({}, '-participants').sort('-created').exec(function (err, rooms) {
+			if (err) {
+				return res.status(422).send({
+					message: errorHandler.getErrorMessage(err)
+				});
+			} else {
+				console.log(' role khac admin!');
+				res.json(rooms);
+			}
+		});	
+	} else {
+		RoomModel.find().sort('-created').exec(function (err, rooms) {
+			if (err) {
+				return res.status(422).send({
+					message: errorHandler.getErrorMessage(err)
+				});
+			} else {
+				res.json(rooms);
+			}
+		});
+	}
 };
 
 exports.enter = function (req, res) {
 	var room = req.room ? req.room.toJSON() : {};
 	//Check permission here
-	res.json(room);
+	if (room && req.user && checkIn(room.participants, req.user)) {
+	  res.json(room);
+	} else {
+	  return res.status(403).json({
+	    message: 'Ban khong duoc vao phong nay'
+	  });
+	}
+}
+
+function checkIn(participants, user) {
+  for (var i = participants.length - 1; i >= 0; i--) {
+    if (participants[i].user.username == user.username) {
+      return true;
+    }
+  }
+  return false;
 }
 
 exports.edit = function (req, res) {
 	var room = req.room;
-	if (!!req.body.newUser) {
+	if (!!req.body.changerole) {
+		for (var i = room.participants.length - 1; i >= 0; i--) {
+			if (room.participants[i].user.username == req.body.changerole) {
+				if (room.participants[i].roles[0] == 'student') {
+					room.participants[i].roles[0] = 'teacher';
+					room.save();
+				} else {
+					room.participants[i].roles[0] = 'student';
+					room.save();
+				}
+				break;
+			}
+		}
+	} else if (!!req.body.newUser) {
 		UserModel.findOne({username: req.body.newUser}, function(err, newUser) {
 			var _participant = {
 				user: newUser,

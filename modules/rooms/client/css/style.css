@@ -18,3 +18,14 @@ table.list-participant td i{
 section#list_user a.thanhvien{
 	cursor: pointer;
 }
+table.list-participant td.changerole:hover {
+	cursor: pointer;
+}
+table.list-participant td.changerole span {
+	padding: 2px 6px;
+	font-weight: bold;
+}
+table.list-participant td.changerole:hover span{
+	background: green;
+	color: #fff;
+}

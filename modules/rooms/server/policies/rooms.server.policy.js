@@ -1,6 +1,10 @@
 'use strict';
 
-var acl = require('acl');
+var acl = require('acl'),
+  mongoose = require('mongoose'),
+  RoomModel = mongoose.model('RoomModel');
+
+
 
 acl = new acl(new acl.memoryBackend());
 
@@ -41,9 +45,7 @@ exports.isAllowed = function (req, res, next) {
   var roles = (req.user) ? req.user.roles : ['guest'];
 
   // If an room is being processed and the current user created it then allow any manipulation
-  // if (req.room && req.user && req.room.user && req.room.user.id === req.user.id) {
-  //   return next();
-  // }
+  
 
   // Check for user roles
   acl.areAnyRolesAllowed(roles, req.route.path, req.method.toLowerCase(), function (err, isAllowed) {
@@ -62,3 +64,4 @@ exports.isAllowed = function (req, res, next) {
     }
   });
 };
+

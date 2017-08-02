@@ -63,7 +63,7 @@
     vm.remove = remove;
     vm.update = update;
     vm.save = save;
-
+    vm.changerole = changerole;
     // Remove existing room
     function remove() {
       if ($window.confirm('Are you sure you want to delete?')) {
@@ -117,6 +117,15 @@
       }, function (errorResponse) {
         Notification.error({ message: errorResponse.data.message, title: '<i class="glyphicon glyphicon-remove"></i> User update error!' });
       });
+    }
+    function changerole(participant){
+      if(participant.roles[0] == 'student'){
+        participant.roles[0] = 'teacher';
+      } else {
+        participant.roles[0] = 'student';
+      }
+      vm.room.changerole = participant.user.username;
+      vm.room.createOrUpdate();
     }
   }
 }());
