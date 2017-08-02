@@ -33,10 +33,27 @@
       </div>
       <div>
         <h3>Danh sach thanh vien</h3>
-        <li ng-repeat="participant in vm.room.participants">
-          <span ng-bind="participant.user.username"></span>
-          <i class="fa fa-times" aria-hidden="true" ng-click="vm.deleteP(participant)"></i>
-        </li>
+        
+        <table class="list-participant table table-hover">
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="participant in vm.room.participants track by $index">
+              <td>{{$index + 1}}</td>
+              <td>{{participant.user.username}}</td>
+              <td>{{participant.user.email}}</td>
+              <td>{{participant.roles[0]}}</td>
+              <td><i class="fa fa-times" aria-hidden="true" ng-click="vm.deleteP(participant)"></i></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -53,7 +70,7 @@
     </div>
   </div>
   <div>
-    <a ng-repeat="user in vm.pagedItems" ng-click="vm.addUser(user)" class="list-group-item">
+    <a ng-repeat="user in vm.pagedItems" ng-click="vm.addUser(user)" class="list-group-item thanhvien">
       <h4 class="list-group-item-heading" ng-bind="user.username"></h4>
       <p class="list-group-item-text pull-right small" ng-bind="user.roles"></p>
       <p class="list-group-item-text" ng-bind="user.email"></p>

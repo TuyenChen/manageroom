@@ -11,3 +11,10 @@
 #list_user .list-group-item {
 
 }
+table.list-participant td i{
+	font-size: 22px;
+	cursor: pointer;
+}
+section#list_user a.thanhvien{
+	cursor: pointer;
+}
