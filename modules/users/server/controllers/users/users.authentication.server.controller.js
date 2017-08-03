@@ -21,7 +21,6 @@ var noReturnUrls = [
 exports.signup = function (req, res) {
   // For security measurement we remove the roles from the req.body object
   delete req.body.roles;
-
   // Init user and add missing fields
   var user = new User(req.body);
   user.provider = 'local';
@@ -53,6 +52,8 @@ exports.signup = function (req, res) {
  * Signin after passport authentication
  */
 exports.signin = function (req, res, next) {
+  
+  console.log(req.body);
   passport.authenticate('local', function (err, user, info) {
     if (err || !user) {
       res.status(422).send(info);
