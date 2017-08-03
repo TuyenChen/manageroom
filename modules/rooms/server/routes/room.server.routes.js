@@ -8,6 +8,7 @@ module.exports = function (app) {
 	.get(rooms.list)    // Get list of rooms
 	.post(rooms.create) // Create a new room
 
+	app.route('/api/rooms/myrooms').get(rooms.myrooms);
 	app.route('/api/rooms/:roomId').all(roomsPolicy.isAllowed)
 	.get(rooms.enter)   // Enter the room
 	.put(rooms.edit)	// Edit the room

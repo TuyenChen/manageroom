@@ -44,7 +44,42 @@ exports.list = function (req, res) {
 		});
 	}
 };
+exports.myrooms = function (req, res){
+	if(req.user == null){
+		res.json({"rooms": []});
+	}else{
+		
+		RoomModel.find()
+		.populate('participants.user')
+		.exec(function (err, rooms) {
+			if (err) {
+				return res.status(422).send({
+					message: errorHandler.getErrorMessage(err)
+				});
+			} else {
+				var my_rooms = [];
+				for (var i = 0; i < rooms.length; i++) {
 
+					for (var j = 0; j < rooms[i].participants.length; j++) {
+						
+						if(rooms[i].participants[j].user.username == req.user.username){
+							my_rooms.push(rooms[i]);
+							break;
+						}else{
+							console.log('Khong bang');
+						}
+					}
+				}
+				console.log(my_rooms);
+				res.json(my_rooms);
+			}
+
+		});
+
+	}
+
+	
+}
 exports.enter = function (req, res) {
 	var room = req.room ? req.room.toJSON() : {};
 	//Check permission here
@@ -58,6 +93,9 @@ exports.enter = function (req, res) {
 }
 
 function checkIn(participants, user) {
+	if(user.roles == 'admin'){
+		return true;
+	}
   for (var i = participants.length - 1; i >= 0; i--) {
     if (participants[i].user.username == user.username) {
       return true;
