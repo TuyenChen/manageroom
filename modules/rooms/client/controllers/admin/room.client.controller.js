@@ -15,6 +15,8 @@
     vm.pageChanged = pageChanged;
     vm.addUser  = addUser;
     vm.deleteP = deleteP;
+    vm.changerole = changerole;
+
     AdminService.query(function (data) {
       vm.users = data;
       vm.buildPager();
@@ -47,12 +49,24 @@
           return false;
         }
       }
-        vm.room.newUser = user.username;
+        vm.room.action = 'addUser';
+        vm.room.sendUser = user.username;
         vm.room.createOrUpdate();
     }
 
     function deleteP(participant) {
-      vm.room.deleteUser = participant.user.username;
+      vm.room.action = 'removeUser';
+      vm.room.sendUser = participant.user.username;
+      vm.room.createOrUpdate();
+    }
+    function changerole(participant){
+      if(participant.roles[0] == 'student'){
+        participant.roles[0] = 'teacher';
+      } else {
+        participant.roles[0] = 'student';
+      }
+      vm.room.action = 'changeRole';
+      vm.room.sendUser = participant._id;  //Send _id of participant
       vm.room.createOrUpdate();
     }
 
@@ -63,7 +77,6 @@
     vm.remove = remove;
     vm.update = update;
     vm.save = save;
-    vm.changerole = changerole;
     // Remove existing room
     function remove() {
       if ($window.confirm('Are you sure you want to delete?')) {
@@ -118,14 +131,6 @@
         Notification.error({ message: errorResponse.data.message, title: '<i class="glyphicon glyphicon-remove"></i> User update error!' });
       });
     }
-    function changerole(participant){
-      if(participant.roles[0] == 'student'){
-        participant.roles[0] = 'teacher';
-      } else {
-        participant.roles[0] = 'student';
-      }
-      vm.room.changerole = participant.user.username;
-      vm.room.createOrUpdate();
-    }
+    
   }
 }());

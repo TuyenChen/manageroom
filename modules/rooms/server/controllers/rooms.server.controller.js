@@ -21,14 +21,14 @@ exports.create = function (req, res) {
 };
 
 exports.list = function (req, res) {
-	if (req.user.roles != 'admin'){
+	var roles = (req.user) ? req.user.roles : ['guest'];
+	if (roles != 'admin'){
 		RoomModel.find({}, '-participants').sort('-created').exec(function (err, rooms) {
 			if (err) {
 				return res.status(422).send({
 					message: errorHandler.getErrorMessage(err)
 				});
 			} else {
-				console.log(' role khac admin!');
 				res.json(rooms);
 			}
 		});	
@@ -45,6 +45,18 @@ exports.list = function (req, res) {
 	}
 };
 
+exports.first = function (req, res) {
+	RoomModel.findOne({}, {}, {}, function (err, room) {
+		if (err) {
+			return res.status(422).send({
+				message: errorHandler.getErrorMessage(err)
+			});
+		} else {
+			res.json(room);
+		}
+	});
+}
+
 exports.enter = function (req, res) {
 	var room = req.room ? req.room.toJSON() : {};
 	//Check permission here
@@ -58,6 +70,7 @@ exports.enter = function (req, res) {
 }
 
 function checkIn(participants, user) {
+	if (user.roles[0] == 'admin') return true;
   for (var i = participants.length - 1; i >= 0; i--) {
     if (participants[i].user.username == user.username) {
       return true;
@@ -66,29 +79,13 @@ function checkIn(participants, user) {
   return false;
 }
 
-exports.edit = function (req, res) {
-	var room = req.room;
-	if (!!req.body.changerole) {
-		for (var i = room.participants.length - 1; i >= 0; i--) {
-			if (room.participants[i].user.username == req.body.changerole) {
-				if (room.participants[i].roles[0] == 'student') {
-					room.participants[i].roles[0] = 'teacher';
-					room.save();
-				} else {
-					room.participants[i].roles[0] = 'student';
-					room.save();
-				}
-				break;
-			}
-		}
-	} else if (!!req.body.newUser) {
-		UserModel.findOne({username: req.body.newUser}, function(err, newUser) {
+function addUser(req, res, room) {
+	UserModel.findOne({username: req.body.sendUser}, function(err, newUser) {
 			var _participant = {
 				user: newUser,
 				role: ["student"]
 			};
 			room.participants.push(_participant);
-			console.log(room.participants);
 			room.save(function (err) {
 				if (err) {
 					return res.status(422).send({
@@ -99,15 +96,15 @@ exports.edit = function (req, res) {
 				}
 			});
 		});
-		// console.log(req.body);
-	} else if (!!req.body.deleteUser) {
-		UserModel.findOne({username: req.body.deleteUser}, function(err, user) {
+}
+
+function removeUser(req, res, room) {
+	UserModel.findOne({username: req.body.sendUser}, function(err, user) {
 			for (var i = room.participants.length - 1; i >= 0; i--) {
 				if (room.participants[i].user.username == user.username) {
 					room.participants.splice(i,1);
 				}
 			}
-			console.log(room.participants);
 			room.save(function (err) {
 				if (err) {
 					return res.status(422).send({
@@ -118,7 +115,28 @@ exports.edit = function (req, res) {
 				}
 			});
 		});
+}
+function changeRole(req, res, room) {
+	for (var i = room.participants.length - 1; i >= 0; i--) {
+		if(room.participants[i]._id == req.body.sendUser) {
+			var _role = (room.participants[i].roles[0] == 'student')? 'teacher' : 'student'; 
+		}
+	}
+	RoomModel.update({'_id': room._id, 'participants._id': req.body.sendUser, }, {'$set': {
+		'participants.$.roles': _role }}, function (err,raw){
+		console.log(raw);
+	});
+}
+exports.edit = function (req, res) {
+	var room = req.room;
+	if (req.body.action == 'changeRole') {
+		changeRole(req, res, room);
+	} else if (req.body.action == 'addUser') {
+		addUser(req, res, room);
+	} else if (req.body.action == 'removeUser') {
+		removeUser(req, res, room);
 	} else {
+		console.log(req.body);
 		room.name = req.body.name;
 		room.description = req.body.description;
 		room.maxJoin = req.body.maxJoin;
